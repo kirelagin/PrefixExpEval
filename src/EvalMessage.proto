@@ -1,0 +1,13 @@
+package itmo.evaluator;
+
+message Eval {
+    enum Operation {
+        ADD = 0;
+        SUB = 1;
+        MUL = 2;
+        DIV = 3;
+    }
+    required int32 evaluator_id = 1;
+    required Operation op = 2;
+    repeated double arg = 3;
+}
