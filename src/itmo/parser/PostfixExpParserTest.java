@@ -1,5 +1,7 @@
 package itmo.parser;
 
+import itmo.evaluator.EvalMessage;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -14,21 +16,17 @@ public class PostfixExpParserTest {
 			PostfixExpParser pep = new PostfixExpParser(exp);
 			while (pep.hasNextExps()) {
 				PostfixExp pe = pep.getPostfixExp();
-				double res = 0;
-				switch (pe.getOperation()) {
-				case '+':
-					res = pe.getArg1() + pe.getArg2();
-					break;
-				case '-':
-					res = pe.getArg1() - pe.getArg2();
-					break;
-				case '*':
-					res = pe.getArg1() * pe.getArg2();
-					break;
-				case '/':
-					res = pe.getArg1() / pe.getArg2();
-					break;
-				}
+				
+				EvalMessage.Request r = EvalMessage.Request.newBuilder()
+						.setEvaluatorId(1)
+						.setOp(pe.getOperation())
+						.setArg(0, pe.getArg1())
+						.setArg(1, pe.getArg2())
+						.build();
+				
+				// TODO: остальное
+				r.toByteArray();
+				
 				if (pep.hasNextExps())
 					pep.putResult(res);
 				else

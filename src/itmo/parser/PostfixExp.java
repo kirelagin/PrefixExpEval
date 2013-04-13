@@ -1,17 +1,19 @@
 package itmo.parser;
 
+import itmo.evaluator.EvalMessage.Request.Operation;
+
 public class PostfixExp {
-	private char operation;
+	private Operation operation;
 	private double arg1;
 	private double arg2;
 	
-	public PostfixExp(char operation, double arg1, double arg2) {
+	public PostfixExp(Operation operation, double arg1, double arg2) {
 		this.operation = operation;
 		this.arg1 = arg1;
 		this.arg2 = arg2;
 	}
 	
-	public char getOperation() {
+	public Operation getOperation() {
 		return operation;
 	}
 	
