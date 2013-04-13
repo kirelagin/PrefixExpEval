@@ -1,4 +1,4 @@
-package ifmo.parser;
+package itmo.parser;
 
 public class PostfixExp {
 	private char operation;

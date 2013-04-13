@@ -1,4 +1,4 @@
-package ifmo.parser;
+package itmo.parser;
 
 import java.text.ParseException;
 import java.util.Stack;

@@ -1,4 +1,4 @@
-package ifmo.parser;
+package itmo.parser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
