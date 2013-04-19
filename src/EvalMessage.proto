@@ -8,10 +8,12 @@ message Request {
         DIV = 3;
     }
     required int32 evaluator_id = 1;
+    required uint32 seq = 4;
     required Operation op = 2;
     repeated double arg = 3;
 }
 
 message Reply {
     required double res = 1;
+    required uint32 seq = 4;
 }
