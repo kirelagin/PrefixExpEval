@@ -28,37 +28,36 @@ public class MWorker {
 
         MessageQueue messageQueue = service.getPort(MessageQueue.class);
 
-        while (true){
-        Envelope envelope = messageQueue.get(TAG);
-        Message msg = envelope.getMsg();
+        while(true){
+            Envelope envelope = messageQueue.get(TAG);
+            Message msg = envelope.getMsg();
             if (msg != null) {
                 EvalMessage.Request e = EvalMessage.Request.parseFrom(msg.getMsg());
-                int tag = e.getEvaluatorId();
-                double arg1 = e.getArg(0);
-                double arg2 = e.getArg(1);
                 EvalMessage.Request.Operation o = e.getOp();
-                if (o == EvalMessage.Request.Operation.MUL) {
-                    arg1 = arg2 * arg1;
-                } else if (o == EvalMessage.Request.Operation.DIV) {
-                    arg1 = arg2 / arg1;
-                }
-                if (o != EvalMessage.Request.Operation.ADD && o != EvalMessage.Request.Operation.SUB) {
+                if (o == EvalMessage.Request.Operation.MUL || o == EvalMessage.Request.Operation.DIV) {
+                    int tag = e.getEvaluatorId();
+                    double arg1 = e.getArg(0);
+                    double arg2 = e.getArg(1);
+                    double res;
+                    if (o == EvalMessage.Request.Operation.MUL) {
+                        res = arg2 * arg1;
+                    } else {
+                        res = arg2 / arg1;
+                    }
                     EvalMessage.Reply r = EvalMessage.Reply.newBuilder()
-                            .setRes(arg1)
+                            .setRes(res)
                             .setSeq(e.getSeq())
                             .build();
                     Message m = new Message();
-                    System.out.println("Ack to "+ envelope.getTicketId());
-                    System.out.println("Result " + arg1 + " after " + e.getOp().toString());
                     m.setMsg(r.toByteArray());
                     messageQueue.put(tag, m);
                     messageQueue.ack(envelope.getTicketId());
-                    System.out.println("Ack to " + envelope.getTicketId());
-                    System.out.println("Result " + arg1 + " " + tag);
+                    System.out.println("Result " + arg1 + " after " + e.getOp().toString());
                 }
             } else {
                 Thread.sleep(TIME_OUT);
             }
         }
     }
+
 }

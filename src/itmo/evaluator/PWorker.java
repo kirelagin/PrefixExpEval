@@ -1,7 +1,6 @@
 package itmo.evaluator;
 
 import com.google.protobuf.InvalidProtocolBufferException;
-import itmo.dreamq.DreamQueueService;
 import itmo.dreamq.MessageQueue;
 import itmo.mq.Envelope;
 import itmo.mq.Message;
@@ -20,6 +19,7 @@ public class PWorker {
 
     public static final int TIME_OUT = 1000;
 
+
     public static void main(String[] args) throws MalformedURLException, InvalidProtocolBufferException, InterruptedException {
         URL url = new URL("http://localhost:9999/mq?wsdl");
         QName qname = new QName("http://dreamq.itmo/", "DreamQueueService");
@@ -27,30 +27,32 @@ public class PWorker {
         Service service = Service.create(url, qname);
 
         MessageQueue messageQueue = service.getPort(MessageQueue.class);
+
         while(true){
             Envelope envelope = messageQueue.get(TAG);
             Message msg = envelope.getMsg();
-            if (msg != null){
+            if (msg != null) {
                 EvalMessage.Request e = EvalMessage.Request.parseFrom(msg.getMsg());
-                int tag = e.getEvaluatorId();
-                double arg1 = e.getArg(0);
-                double arg2  = e.getArg(1);
                 EvalMessage.Request.Operation o = e.getOp();
-                if (o == EvalMessage.Request.Operation.ADD){
-                    arg1 = arg2 + arg1;
-                } else if (o == EvalMessage.Request.Operation.SUB){
-                    arg1 = arg2 - arg1;
-                }
-                if (o != EvalMessage.Request.Operation.DIV && o != EvalMessage.Request.Operation.MUL){
+                if (o == EvalMessage.Request.Operation.ADD || o == EvalMessage.Request.Operation.SUB) {
+                    int tag = e.getEvaluatorId();
+                    double arg1 = e.getArg(0);
+                    double arg2 = e.getArg(1);
+                    double res;
+                    if (o == EvalMessage.Request.Operation.ADD) {
+                        res = arg2 + arg1;
+                    } else {
+                        res = arg2 - arg1;
+                    }
                     EvalMessage.Reply r = EvalMessage.Reply.newBuilder()
-                            .setRes(arg1)
+                            .setRes(res)
                             .setSeq(e.getSeq())
                             .build();
                     Message m = new Message();
-                    System.out.println("Result " + arg1 + " after " + e.getOp().toString());
                     m.setMsg(r.toByteArray());
                     messageQueue.put(tag, m);
                     messageQueue.ack(envelope.getTicketId());
+                    System.out.println("Result " + arg1 + " after " + e.getOp().toString());
                 }
             } else {
                 Thread.sleep(TIME_OUT);
