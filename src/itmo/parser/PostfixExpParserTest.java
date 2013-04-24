@@ -24,13 +24,13 @@ public class PostfixExpParserTest {
         int submiterTag = -1;
         Random rng = new Random();
         while (true){
-            //submiterTag = rng.nextInt();
-            //if (submiterTag < -2 || submiterTag >= 0){
+            submiterTag = rng.nextInt();
+            if (submiterTag < -2 || submiterTag >= 0){
                 if (messageQueue.createQueue(submiterTag)){
                     break;
                 }
-            //}
-            submiterTag++;
+            }
+            //submiterTag++;
         }
         int time = 0;
 		while (true) {
