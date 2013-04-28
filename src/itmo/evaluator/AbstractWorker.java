@@ -16,15 +16,13 @@ import java.util.List;
  */
 public abstract class AbstractWorker {
 
-    public static final int TIME_OUT = 1000;
-
     private int tag;
 
     public AbstractWorker(int tag) {
         this.tag = tag;
     }
 
-    public void run() throws MalformedURLException, InvalidProtocolBufferException, InterruptedException {
+    public void run() throws MalformedURLException, InvalidProtocolBufferException {
         URL url = new URL("http://localhost:9999/mq?wsdl");
         QName qname = new QName("http://dreamq.itmo/", "DreamQueueService");
 
@@ -33,26 +31,22 @@ public abstract class AbstractWorker {
         MessageQueue messageQueue = service.getPort(MessageQueue.class);
 
         while (true) {
-            Envelope envelope = messageQueue.get(tag);
+            Envelope envelope = messageQueue.getBlocking(tag);
             Message msg = envelope.getMsg();
-            if (msg != null) {
-                EvalMessage.Request e = EvalMessage.Request.parseFrom(msg.getMsg());
-                EvalMessage.Request.Operation o = e.getOp();
-                if (canPerform(o)) {
-                    int evaluator = e.getEvaluatorId();
-                    double res = perform(o, e.getArgList());
-                    EvalMessage.Reply r = EvalMessage.Reply.newBuilder()
-                            .setRes(res)
-                            .setSeq(e.getSeq())
-                            .build();
-                    Message m = new Message();
-                    m.setMsg(r.toByteArray());
-                    messageQueue.put(evaluator, m);
-                    messageQueue.ack(envelope.getTicketId());
-                    System.out.println(o.toString() + " " + e.getArgList().toString() + " = " + res);
-                }
-            } else {
-                Thread.sleep(TIME_OUT);
+            EvalMessage.Request e = EvalMessage.Request.parseFrom(msg.getMsg());
+            EvalMessage.Request.Operation o = e.getOp();
+            if (canPerform(o)) {
+                int evaluator = e.getEvaluatorId();
+                double res = perform(o, e.getArgList());
+                EvalMessage.Reply r = EvalMessage.Reply.newBuilder()
+                        .setRes(res)
+                        .setSeq(e.getSeq())
+                        .build();
+                Message m = new Message();
+                m.setMsg(r.toByteArray());
+                messageQueue.put(evaluator, m);
+                messageQueue.ack(envelope.getTicketId());
+                System.out.println(o.toString() + " " + e.getArgList().toString() + " = " + res);
             }
         }
     }
