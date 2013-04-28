@@ -22,12 +22,9 @@ public abstract class AbstractWorker {
         this.tag = tag;
     }
 
-    public void run() throws MalformedURLException, InvalidProtocolBufferException {
-        URL url = new URL("http://localhost:9999/mq?wsdl");
-        QName qname = new QName("http://dreamq.itmo/", "DreamQueueService");
-
-        Service service = Service.create(url, qname);
-
+    public void run(String url, String serviceHost, String serviceName) throws MalformedURLException, InvalidProtocolBufferException {
+        QName qName = new QName(serviceHost, serviceName);
+        Service service = Service.create(new URL(url), qName);
         MessageQueue messageQueue = service.getPort(MessageQueue.class);
 
         while (true) {
