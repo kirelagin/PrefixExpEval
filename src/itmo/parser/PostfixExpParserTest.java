@@ -40,7 +40,7 @@ public class PostfixExpParserTest {
 						.setOp(pe.getOperation())
 						.addArg(pe.getArg1())
 						.addArg(pe.getArg2())
-                        .setSeq(time++)
+                        .setSeq(++time)
 						.build();
 				
                 Message m = new Message();
@@ -64,10 +64,11 @@ public class PostfixExpParserTest {
                     got = true;
                 }
 
-				if (pep.hasNextExps())
+				if (pep.hasNextExps()) {
 					pep.putResult(res);
-				else
+				} else {
 					System.out.println(res);
+                }
 			}
 		}
 	}
