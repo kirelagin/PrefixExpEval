@@ -1,5 +1,6 @@
 package itmo.parser;
 
+import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream;
 import itmo.dreamq.DreamQueueService;
 import itmo.dreamq.MessageQueue;
 import itmo.evaluator.EvalMessage;
@@ -16,19 +17,21 @@ import java.util.Random;
 
 public class PostfixExpParserTest {
 
-	public static void main(String[] args) throws IOException, ParseException, InterruptedException {
+	public static void main(String[] args) throws IOException, ParseException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         DreamQueueService service = new DreamQueueService();
         MessageQueue messageQueue = service.getDreamQueuePort();
-
-        int submitterTag;
+        int submitterTag = -1;
         Random rng = new Random();
-        do {
-            submitterTag = rng.nextInt(Integer.MAX_VALUE - 1) + 1;
-        } while (!messageQueue.createQueue(submitterTag));
-
+        while (true){
+            submitterTag = rng.nextInt();
+            if (submitterTag < -2 || submitterTag >= 0){
+                if (messageQueue.createQueue(submitterTag)){
+                    break;
+                }
+            }
+        }
         int time = 0;
-
 		while (true) {
 			String exp = br.readLine();
 			PostfixExpParser pep = new PostfixExpParser(exp);
@@ -40,7 +43,7 @@ public class PostfixExpParserTest {
 						.setOp(pe.getOperation())
 						.addArg(pe.getArg1())
 						.addArg(pe.getArg2())
-                        .setSeq(time++)
+                        .setSeq(time)
 						.build();
 				
                 Message m = new Message();
@@ -50,13 +53,9 @@ public class PostfixExpParserTest {
                 double res = 0;
                 boolean got = false;
                 while (!got) {
-                    Envelope e;
-                    while ((e = messageQueue.get(submitterTag)).getMsg() == null) {
-                        Thread.sleep(100);
-                    }
+                    Envelope e = messageQueue.getBlocking(submitterTag);
                     EvalMessage.Reply reply = EvalMessage.Reply.parseFrom(e.getMsg().getMsg());
                     if (reply.getSeq() != time){
-                        // Throw it away
                         continue;
                     }
 
@@ -68,6 +67,7 @@ public class PostfixExpParserTest {
 					pep.putResult(res);
 				else
 					System.out.println(res);
+                ++time;
 			}
 		}
 	}
