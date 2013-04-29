@@ -8,8 +8,8 @@ import java.util.List;
  */
 public class PWorker extends AbstractWorker {
 
-    public PWorker(String url, String serviceHost, String serviceName) throws MalformedURLException {
-        super(-1, url, serviceHost, serviceName);
+    public PWorker(String url) throws MalformedURLException {
+        super(-1, url);
     }
 
     @Override

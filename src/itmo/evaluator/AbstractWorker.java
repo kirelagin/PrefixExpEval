@@ -19,9 +19,10 @@ public abstract class AbstractWorker implements Runnable {
     private int tag;
     private MessageQueue messageQueue;
 
-    public AbstractWorker(int tag, String url, String serviceHost, String serviceName) throws MalformedURLException {
+    public AbstractWorker(int tag, String url) throws MalformedURLException {
         this.tag = tag;
-        QName qName = new QName(serviceHost, serviceName);
+
+        QName qName = new QName("http://dreamq.itmo/", "DreamQueueService");
         Service service = Service.create(new URL(url), qName);
         messageQueue = service.getPort(MessageQueue.class);
     }

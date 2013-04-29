@@ -5,23 +5,21 @@ import java.util.ArrayList;
 
 public class WorkersLauncher {
     public static void main(String[] args) {
-        if (args.length != 5) {
-            System.out.println("Required parameters: <url> <service_host> <service_name> <pworkers_count> <mworkers_count>");
+        if (args.length != 3) {
+            System.out.println("Required parameters: <url> <pworkers_count> <mworkers_count>");
             return;
         }
         String url = args[0];
-        String serviceHost = args[1];
-        String serviceName = args[2];
-        int pWorkersCount = Integer.parseInt(args[3]);
-        int mWorkersCount = Integer.parseInt(args[4]);
+        int pWorkersCount = Integer.parseInt(args[1]);
+        int mWorkersCount = Integer.parseInt(args[2]);
 
         ArrayList<Thread> threads = new ArrayList<Thread>();
         try {
             for (int i = 0; i < pWorkersCount; ++i) {
-                threads.add(new Thread(new PWorker(url, serviceHost, serviceName)));
+                threads.add(new Thread(new PWorker(url)));
             }
             for (int i = 0; i < mWorkersCount; ++i) {
-                threads.add(new Thread(new MWorker(url, serviceHost, serviceName)));
+                threads.add(new Thread(new MWorker(url)));
             }
             for (Thread thread : threads) {
                 thread.start();
