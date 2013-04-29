@@ -52,6 +52,8 @@ public abstract class AbstractWorker implements Runnable {
             }
         } catch (InvalidProtocolBufferException e) {
             e.printStackTrace();
+        } catch (WebServiceException e) {
+            System.err.println("Connection failure");
         }
     }
 
