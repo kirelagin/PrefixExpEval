@@ -1,5 +1,6 @@
 package itmo.evaluator;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
 /**
@@ -7,8 +8,8 @@ import java.util.List;
  */
 public class PWorker extends AbstractWorker {
 
-    public PWorker() {
-        super(-1);
+    public PWorker(String url, String serviceHost, String serviceName) throws MalformedURLException {
+        super(-1, url, serviceHost, serviceName);
     }
 
     @Override

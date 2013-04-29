@@ -1,4 +1,8 @@
+# On Gentoo:
 PROTOJAR := /usr/share/protobuf/lib/protobuf.jar
+
+# On Ubuntu:
+#PROTOJAR := /usr/share/java/protobuf-java.jar
 
 FILES := $(shell find . -name '*.java')
 CLASSES := $(FILES:%.java=%.class)
