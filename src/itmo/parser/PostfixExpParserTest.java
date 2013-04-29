@@ -51,6 +51,7 @@ public class PostfixExpParserTest {
                 boolean got = false;
                 while (!got) {
                     Envelope e = messageQueue.getBlocking(submitterTag);
+                    messageQueue.ack(e.getTicketId());
                     EvalMessage.Reply reply = EvalMessage.Reply.parseFrom(e.getMsg().getMsg());
                     if (reply.getSeq() != time){
                         // Throw it away
