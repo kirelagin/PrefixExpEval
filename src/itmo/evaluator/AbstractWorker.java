@@ -17,14 +17,12 @@ import java.util.List;
 public abstract class AbstractWorker implements Runnable {
 
     private int tag;
-    private QName qName;
-    private Service service;
     private MessageQueue messageQueue;
 
     public AbstractWorker(int tag, String url, String serviceHost, String serviceName) throws MalformedURLException {
         this.tag = tag;
-        qName = new QName(serviceHost, serviceName);
-        service = Service.create(new URL(url), qName);
+        QName qName = new QName(serviceHost, serviceName);
+        Service service = Service.create(new URL(url), qName);
         messageQueue = service.getPort(MessageQueue.class);
     }
 
