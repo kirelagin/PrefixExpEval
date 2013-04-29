@@ -1,9 +1,7 @@
 package itmo.evaluator;
 
 import java.net.MalformedURLException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
 
 public class WorkersLauncher {
     public static void main(String[] args) {
@@ -17,20 +15,22 @@ public class WorkersLauncher {
         int pWorkersCount = Integer.parseInt(args[3]);
         int mWorkersCount = Integer.parseInt(args[4]);
 
-        ExecutorService executor = Executors.newFixedThreadPool(pWorkersCount + mWorkersCount);
+        ArrayList<Thread> threads = new ArrayList<Thread>();
         try {
             for (int i = 0; i < pWorkersCount; ++i) {
-                executor.execute(new PWorker(url, serviceHost, serviceName));
+                threads.add(new Thread(new PWorker(url, serviceHost, serviceName)));
             }
             for (int i = 0; i < mWorkersCount; ++i) {
-                executor.execute(new MWorker(url, serviceHost, serviceName));
+                threads.add(new Thread(new MWorker(url, serviceHost, serviceName)));
+            }
+            for (Thread thread : threads) {
+                thread.start();
+            }
+            for (Thread thread : threads) {
+                thread.join();
             }
         } catch (MalformedURLException e) {
             e.printStackTrace();
-        }
-        executor.shutdown();
-        try {
-            executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
