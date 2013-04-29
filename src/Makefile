@@ -10,7 +10,7 @@ CLASSES := $(FILES:%.java=%.class)
 WS_CLASSES := itmo/mq/Message.class itmo/mq/ObjectFactory.class itmo/mq/package-info.class itmo/mq/Envelope.class itmo/dreamq/MessageQueue.class itmo/dreamq/DreamQueueService.class
 
 
-.PHONY : build clean
+.PHONY : build clean runworkers runeval
 
 build : $(CLASSES)
 
@@ -29,3 +29,9 @@ itmo/evaluator/EvalMessage.java : EvalMessage.proto
 clean :
 	find . -name '*.class' -exec rm -rf {} \;
 	rm -f itmo/evaluator/EvalMessage.java
+
+runworkers : build
+	java -cp .:$(PROTOJAR) itmo.evaluator.WorkersLauncher 'http://localhost:9999/mq' 3 3
+
+runeval : build
+	java -cp .:$(PROTOJAR) itmo.parser.PostfixExpParserTest
