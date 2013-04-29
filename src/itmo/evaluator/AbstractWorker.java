@@ -8,6 +8,7 @@ import itmo.mq.Message;
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
 import java.net.MalformedURLException;
+import javax.xml.ws.WebServiceException;
 import java.net.URL;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public abstract class AbstractWorker implements Runnable {
                     m.setMsg(r.toByteArray());
                     messageQueue.put(evaluator, m);
                     messageQueue.ack(envelope.getTicketId());
-                    System.out.println(o.toString() + " " + e.getArgList().toString() + " = " + res);
+                    System.err.println(o.toString() + " " + e.getArgList().toString() + " = " + res + " // " + Thread.currentThread().getId());
                 }
             }
         } catch (InvalidProtocolBufferException e) {

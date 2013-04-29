@@ -57,6 +57,7 @@ public class PostfixExpParserTest {
                     EvalMessage.Reply reply = EvalMessage.Reply.parseFrom(e.getMsg().getMsg());
                     if (reply.getSeq() != time){
                         // Throw it away
+                        System.err.println("Message with time " + reply.getSeq() + " now " + time);
                         continue;
                     }
 
