@@ -30,46 +30,50 @@ public class PostfixExpParserTest {
         int time = 0;
 
 		while (true) {
-			String exp = br.readLine();
-			PostfixExpParser pep = new PostfixExpParser(exp);
-			while (pep.hasNextExps()) {
-				PostfixExp pe = pep.getPostfixExp();
-				
-				EvalMessage.Request request = EvalMessage.Request.newBuilder()
-						.setEvaluatorId(submitterTag)
-						.setOp(pe.getOperation())
-						.addArg(pe.getArg1())
-						.addArg(pe.getArg2())
-                        .setSeq(++time)
-						.build();
-				
-                Message m = new Message();
-                m.setMsg(request.toByteArray());
-				messageQueue.put(-1 - pe.getOperation().getNumber() / 2, m);
+            try {
+                String exp = br.readLine();
+                PostfixExpParser pep = new PostfixExpParser(exp);
+                while (pep.hasNextExps()) {
+                    PostfixExp pe = pep.getPostfixExp();
 
-                double res = 0;
-                boolean got = false;
-                while (!got) {
-                    Envelope e = messageQueue.getBlocking(submitterTag);
-                    messageQueue.ack(e.getTicketId());
-                    EvalMessage.Reply reply = EvalMessage.Reply.parseFrom(e.getMsg().getMsg());
-                    if (reply.getSeq() != time){
-                        // Throw it away
-                        System.err.println("Message with time " + reply.getSeq() + " now " + time);
-                        continue;
+                    EvalMessage.Request request = EvalMessage.Request.newBuilder()
+                            .setEvaluatorId(submitterTag)
+                            .setOp(pe.getOperation())
+                            .addArg(pe.getArg1())
+                            .addArg(pe.getArg2())
+                            .setSeq(++time)
+                            .build();
+
+                    Message m = new Message();
+                    m.setMsg(request.toByteArray());
+                    messageQueue.put(-1 - pe.getOperation().getNumber() / 2, m);
+
+                    double res = 0;
+                    boolean got = false;
+                    while (!got) {
+                        Envelope e = messageQueue.getBlocking(submitterTag);
+                        messageQueue.ack(e.getTicketId());
+                        EvalMessage.Reply reply = EvalMessage.Reply.parseFrom(e.getMsg().getMsg());
+                        if (reply.getSeq() != time){
+                            // Throw it away
+                            System.err.println("Message with time " + reply.getSeq() + " now " + time);
+                            continue;
+                        }
+
+                        res = reply.getRes();
+                        got = true;
                     }
 
-                    res = reply.getRes();
-                    got = true;
+                    if (pep.hasNextExps()) {
+                        pep.putResult(res);
+                    } else {
+                        System.out.println(res);
+                    }
                 }
-
-				if (pep.hasNextExps()) {
-					pep.putResult(res);
-				} else {
-					System.out.println(res);
-                }
-			}
-		}
+			} catch (Exception e) {
+                System.err.println("Invalid expression. Skipping.");
+            }
+        }
 	}
 
 }
